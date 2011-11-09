@@ -55,6 +55,12 @@
 
 #include "edrv.h"
 
+#if (TARGET_SYSTEM == _QNX_)
+typedef	unsigned int u_int;
+typedef	unsigned short u_short;
+typedef	unsigned char u_char;
+#endif
+
 #include <unistd.h>
 #include <pcap.h>
 #include <string.h>
