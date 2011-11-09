@@ -318,6 +318,10 @@ tEplKernel EdrvInit(tEdrvInitParam *pEdrvInitParam_p)
     /* wait until thread is started */
     sem_wait(&EdrvInstance_l.m_syncSem);
 
+#if (TARGET_SYSTEM == _QNX_)
+    sleep(1);
+#endif
+
 Exit:
     return Ret;
 }
@@ -617,6 +621,16 @@ static void EdrvPacketHandler(u_char *pUser_p,
 //
 // Returns:     DWORD           = thread return code
 //---------------------------------------------------------------------------
+static int pcap_ex_immediate(pcap_t *pcap)
+{
+#ifdef BIOCIMMEDIATE
+	int n = 1;
+	return ioctl(pcap_fileno(pcap), BIOCIMMEDIATE, &n);
+#else
+	return 0;
+#endif
+}
+
 static void * EdrvWorkerThread(void *pArgument_p)
 {
     tEdrvInstance*  pInstance = (tEdrvInstance *)pArgument_p;
@@ -635,6 +649,12 @@ static void * EdrvWorkerThread(void *pArgument_p)
    {
        EPL_DBGLVL_ERROR_TRACE2("%s() Error!! Can't open pcap: %s\n", __func__,
                                sErr_Msg);
+       return NULL;
+   }
+
+   if (pcap_ex_immediate(pInstance->m_pPcapThread) < 0)
+   {
+       printf("%s: cannot enable immediate mode on interface\n", __func__);
        return NULL;
    }
 
