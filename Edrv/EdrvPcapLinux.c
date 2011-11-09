@@ -359,6 +359,13 @@ tEplKernel EdrvShutdown( void )
 //
 // Returns:     Errorcode   = kEplSuccessful
 //---------------------------------------------------------------------------
+#define LV_DBG_QNX_TRANSMIT	0
+
+#if (LV_DBG_QNX_TRANSMIT == 1)
+	static struct timespec ts_l;
+	static int count_l=0;
+#endif
+
 tEplKernel EdrvSendTxMsg(tEdrvTxBuffer *pBuffer_p)
 {
     tEplKernel  Ret = kEplSuccessful;
@@ -384,6 +391,14 @@ tEplKernel EdrvSendTxMsg(tEdrvTxBuffer *pBuffer_p)
         EdrvInstance_l.m_pTransmittedTxBufferLastEntry = pBuffer_p;
     }
     pthread_mutex_unlock(&EdrvInstance_l.m_mutex);
+
+#if (LV_DBG_QNX_TRANSMIT == 1)
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    ts_l = ts;
+    count_l++;
+    printf("EdrvSendTxMsg(): count=%d current time sec: %ld nano: %ld\n", count_l, ts.tv_sec, ts.tv_nsec);
+#endif
 
     iRet = pcap_sendpacket(EdrvInstance_l.m_pPcap, pBuffer_p->m_pbBuffer,
                            (int) pBuffer_p->m_uiTxMsgLen);
@@ -548,6 +563,15 @@ static void EdrvPacketHandler(u_char *pUser_p,
     }
     else
     {   // self generated traffic
+#if (LV_DBG_QNX_TRANSMIT == 1)
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    printf("EdrvPacketHandler(): count=%d\tcurrent time sec: %ld nano: %ld\tdt_nano = %ld\n",
+    			count_l, ts.tv_sec, ts.tv_nsec,
+        		(ts.tv_sec - ts_l.tv_sec) > 0 ? ts.tv_nsec + 1000000000 - ts_l.tv_nsec : ts.tv_nsec - ts_l.tv_nsec);
+//    ts_l = ts;
+//    count_l++;
+#endif
         FTRACE_MARKER("%s TX-receive", __func__);
 
         if (pInstance->m_pTransmittedTxBufferFirstEntry != NULL)
