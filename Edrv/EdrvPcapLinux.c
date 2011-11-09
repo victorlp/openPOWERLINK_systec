@@ -66,7 +66,7 @@ typedef	unsigned char u_char;
 #include <string.h>
 #include <pthread.h>
 #include <sys/select.h>
-#include <sys/syscall.h>
+//#include <sys/syscall.h>
 #include <semaphore.h>
 
 #include <sys/socket.h>
@@ -278,6 +278,7 @@ tEplKernel EdrvInit(tEdrvInitParam *pEdrvInitParam_p)
         Ret = kEplEdrvInitError;
         goto Exit;
     }
+#if (TARGET_SYSTEM != _QNX_)
 
     if (pcap_setdirection(EdrvInstance_l.m_pPcap, PCAP_D_OUT) < 0)
     {
@@ -285,6 +286,7 @@ tEplKernel EdrvInit(tEdrvInitParam *pEdrvInitParam_p)
         Ret = kEplEdrvInitError;
         goto Exit;
     }
+#endif
 
     if (pthread_mutex_init(&EdrvInstance_l.m_mutex, NULL) != 0)
     {
@@ -308,7 +310,12 @@ tEplKernel EdrvInit(tEdrvInitParam *pEdrvInitParam_p)
         goto Exit;
     }
 
+#if (TARGET_SYSTEM == _QNX_)
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_MEDIUM;
+#else
     schedParam.__sched_priority = EPL_THREAD_PRIORITY_MEDIUM;
+#endif
+
     if (pthread_setschedparam(EdrvInstance_l.m_hThread, SCHED_FIFO, &schedParam) != 0)
     {
         EPL_DBGLVL_ERROR_TRACE1("%s() couldn't set thread scheduling parameters!\n",
