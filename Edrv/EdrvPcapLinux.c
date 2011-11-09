@@ -74,6 +74,10 @@ typedef	unsigned char u_char;
 #include <netinet/in.h>
 #include <net/if.h>
 
+#if (TARGET_SYSTEM == _QNX_)
+#include <ifaddrs.h>
+#include <net/if_dl.h>
+#endif
 /***************************************************************************/
 /*                                                                         */
 /*                                                                         */
@@ -161,6 +165,44 @@ static void *EdrvWorkerThread(void *);
 //---------------------------------------------------------------------------
 static void getMacAdrs(char *ifName, BYTE *macAdrs)
 {
+#if (TARGET_SYSTEM == _QNX_)
+	enum {MAC_LEN=6};
+	struct ifaddrs *ifaphead;
+	int found = 0;
+	struct ifaddrs *ifap;
+	struct sockaddr_dl *sdl = NULL;
+
+	memset(macAdrs, 0, MAC_LEN);
+
+	if (getifaddrs(&ifaphead) != 0)
+	{
+//		printf("getMacAdrs(): getifaddrs() failed\n");
+	}
+
+	for (ifap = ifaphead; ifap && !found; ifap = ifap->ifa_next)
+	{
+		if ((ifap->ifa_addr->sa_family == AF_LINK))
+		{
+			if (strlen(ifap->ifa_name) == strlen(ifName))
+				if (strcmp(ifap->ifa_name,ifName) == 0)
+				{
+					found = 1;
+					sdl = (struct sockaddr_dl *)ifap->ifa_addr;
+					if (sdl)
+					{
+						memcpy(macAdrs, LLADDR(sdl), MAC_LEN);
+					}
+				}
+		}
+	}
+//	if (!found)
+//	{
+//		printf (stderr,"Can't find interface %s.\n",ifName);
+//	}
+
+	if(ifaphead)
+		freeifaddrs(ifaphead);
+#else
     int    fd;
     struct ifreq ifr;
 
@@ -174,6 +216,7 @@ static void getMacAdrs(char *ifName, BYTE *macAdrs)
     close(fd);
 
     EPL_MEMCPY(macAdrs, ifr.ifr_hwaddr.sa_data, 6);
+#endif
 }
 
 //---------------------------------------------------------------------------
