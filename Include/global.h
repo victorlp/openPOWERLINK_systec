@@ -97,6 +97,7 @@
 #define _DEV_MITSUBISHI_M16C_   (_DEV_BIT8_  | _DEV_MITSUBISHIM16C_          )
 #define _DEV_GNU_MPC5X5_        (_DEV_BIT32_ | _DEV_GNUC_MPC5X5| _DEV_BIGEND_ | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_LINUX_             (_DEV_BIT32_ | _DEV_LINUX_GCC_                | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
+#define _DEV_QNX_               (_DEV_BIT32_ | _DEV_GNUC_X86_                | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_GNU_C16X_          (_DEV_BIT16_ | _DEV_GNUC_C16X_               ) //| _DEV_COMMA_EXT_)
 #define _DEV_MCW_MPC5X5_        (_DEV_BIT32_ | _DEV_METROWERKS_CW_           ) //| _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_GNU_ARM7_          (_DEV_BIT32_ | _DEV_GNUC_ARM7_                | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_ | _DEV_ONLY_INT_MAIN_)
@@ -144,6 +145,7 @@
 #define _LINUX_              1
 #define _PXROS_              2
 #define _ECOSPRO_            3
+#define _QNX_                5
 
 
 //---------------------------------------------------------------------------
@@ -887,7 +889,7 @@
         #ifdef __i386__
             #undef LINUX // this define seems to be set from compiler
             #define DEV_SYSTEM      _DEV_HIGHTEC_X86_
-	    #elif defined (__tricore__)
+        #elif defined (__tricore__)
             #define DEV_SYSTEM      _DEV_GNU_TRICORE_
         #else // MPC5x5
             #define DEV_SYSTEM      _DEV_GNU_MPC5X5_
@@ -896,6 +898,10 @@
     #elif defined (LINUX) || defined (__linux__)
         #define TARGET_SYSTEM       _LINUX_     // Linux definition
         #define DEV_SYSTEM          _DEV_LINUX_
+
+    #elif defined (__QNX__)
+        #define TARGET_SYSTEM       _QNX_       // QNX definition
+        #define DEV_SYSTEM          _DEV_QNX_
 
     #elif defined (GNU_CF5282)
         #define TARGET_SYSTEM       _NO_OS_
@@ -967,7 +973,7 @@
 
     // ------------------ GNUC for I386 ---------------------------------------------
 
-    #if (TARGET_SYSTEM == _LINUX_) || (TARGET_SYSTEM == _ECOSPRO_)
+    #if (TARGET_SYSTEM == _LINUX_) || (TARGET_SYSTEM == _QNX_)|| (TARGET_SYSTEM == _ECOSPRO_)
 
         #ifndef __KERNEL__
             #include <string.h>
@@ -1011,7 +1017,11 @@
             #endif
         #endif
 
-        #define UNUSED_PARAMETER(par)
+        #if (TARGET_SYSTEM == _QNX_)
+            #define UNUSED_PARAMETER(par) par = par
+        #else
+            #define UNUSED_PARAMETER(par)
+        #endif
 
     #endif
 
