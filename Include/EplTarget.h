@@ -178,7 +178,7 @@
     #endif
 
 
-#elif (TARGET_SYSTEM == _LINUX_)
+#elif (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 
     #ifndef __KERNEL__
         #include <stdlib.h>
