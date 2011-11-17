@@ -57,9 +57,13 @@
 
 #include <stdio.h>
 #include <unistd.h>
+
+#if (TARGET_SYSTEM != _QNX_)
 #include <sys/timerfd.h>
-#include <pthread.h>
 #include <sys/syscall.h>
+#endif
+
+#include <pthread.h>
 #include <semaphore.h>
 
 #include <signal.h>
@@ -182,7 +186,12 @@ tEplKernel PUBLIC EplTimeruAddInstance()
         goto Exit;
     }
 
+#if (TARGET_SYSTEM == _QNX_)
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_LOW;
+#else
     schedParam.__sched_priority = EPL_THREAD_PRIORITY_LOW;
+#endif
+
     if (pthread_setschedparam(EplTimeruInstance_g.m_hProcessThread, SCHED_RR,
                               &schedParam) != 0)
     {

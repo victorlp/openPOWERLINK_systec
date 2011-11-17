@@ -86,7 +86,7 @@
 #include <asm/semaphore.h>
 #endif
 #include <asm/current.h>
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
 #include <sys/types.h>
 #include <semaphore.h>
 #include <pthread.h>
@@ -189,7 +189,7 @@ typedef struct
         // more OS specific event types
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
         tEplApiProcessImageCompletion* m_pCompletion;
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
         sem_t                   m_semCompletion;
 #elif (TARGET_SYSTEM == _WIN32_)
         HANDLE                  m_hEvent;
@@ -211,7 +211,7 @@ typedef struct
     tEplSyncCb          m_pfnOrgCbSync;
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
     struct task_struct* m_pCurrentTask;
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     pthread_t           m_currentThreadId;
 #elif (TARGET_SYSTEM == _WIN32_)
     DWORD               m_dwCurrentThreadId;
@@ -561,7 +561,7 @@ tEplApiProcessImageCopyJobInt   IntCopyJob;
 
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
     if (EplApiProcessImageInstance_g.m_pCurrentTask == get_current())
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     if (pthread_equal(EplApiProcessImageInstance_g.m_currentThreadId, pthread_self()))
 #elif (TARGET_SYSTEM == _WIN32_)
     if (EplApiProcessImageInstance_g.m_dwCurrentThreadId == GetCurrentThreadId())
@@ -1129,7 +1129,7 @@ tEplKernel      Ret = kEplSuccessful;
         goto Exit;
     }
 
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     sem_init(&pCopyJob_p->m_Event.m_semCompletion, 0, 0);
 
 #elif (TARGET_SYSTEM == _WIN32_)
@@ -1174,7 +1174,7 @@ int             iRes;
         Ret = kEplShutdown;
     }
 
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     sem_wait(&pCopyJob_p->m_Event.m_semCompletion);
 #elif (TARGET_SYSTEM == _WIN32_)
     WaitForSingleObject(pCopyJob_p->m_Event.m_hEvent, INFINITE);
@@ -1217,7 +1217,7 @@ tEplKernel      Ret = kEplSuccessful;
         pCopyJob_p->m_Event.m_pCompletion = NULL;
     }
 
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     sem_destroy(&pCopyJob_p->m_Event.m_semCompletion);
 
 #elif (TARGET_SYSTEM == _WIN32_)
@@ -1260,7 +1260,7 @@ tEplKernel      Ret = kEplSuccessful;
     {
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
         complete(&pCopyJob_p->m_Event.m_pCompletion->m_Completion);
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
         sem_post(&pCopyJob_p->m_Event.m_semCompletion);
 #elif (TARGET_SYSTEM == _WIN32_)
         SetEvent(pCopyJob_p->m_Event.m_hEvent);
@@ -1301,7 +1301,7 @@ tEplApiProcessImageCopyJobInt   CopyJob;
     // memorize current thread, so that Exchange() can detect if it is called from within this function
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
     EplApiProcessImageInstance_g.m_pCurrentTask = get_current();
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     EplApiProcessImageInstance_g.m_currentThreadId = pthread_self();
 #elif (TARGET_SYSTEM == _WIN32_)
     EplApiProcessImageInstance_g.m_dwCurrentThreadId = GetCurrentThreadId();
@@ -1377,7 +1377,7 @@ tEplApiProcessImageCopyJobInt   CopyJob;
 Exit:
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
     EplApiProcessImageInstance_g.m_pCurrentTask = NULL;
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     EplApiProcessImageInstance_g.m_currentThreadId = 0;
 #elif (TARGET_SYSTEM == _WIN32_)
     EplApiProcessImageInstance_g.m_dwCurrentThreadId = ~0UL;

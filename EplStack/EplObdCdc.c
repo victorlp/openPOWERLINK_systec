@@ -100,7 +100,7 @@
     #include <direct.h>
     #include <string.h>
 
-#elif (TARGET_SYSTEM == _LINUX_)
+#elif (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 
     #ifdef __arm__
         #include <sys/io.h>
@@ -113,7 +113,13 @@
         #include "PosixFileLinuxKernel.h"
     #else
         #include <unistd.h>
-        #include <sys/vfs.h>
+
+        #if (TARGET_SYSTEM == _QNX_)
+            #include <sys/statvfs.h>
+        #else
+            #include <sys/vfs.h>
+        #endif
+
         #include <sys/types.h>
         #include <sys/timeb.h>
         #include <utime.h>
@@ -132,7 +138,7 @@
     #define flush  _commit
     #define mode_t int
 
-#elif (TARGET_SYSTEM == _LINUX_)
+#elif (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 
     #define O_BINARY 0
     #define _MAX_PATH PATH_MAX

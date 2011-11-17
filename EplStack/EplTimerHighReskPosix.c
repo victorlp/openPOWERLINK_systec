@@ -76,7 +76,10 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
+
+#if (TARGET_SYSTEM != _QNX_)
 #include <sys/syscall.h>
+#endif
 
 //=========================================================================//
 // Definitions                                                             //
@@ -202,7 +205,12 @@ tEplKernel PUBLIC EplTimerHighReskAddInstance(void)
         goto Exit;
     }
 
+#if (TARGET_SYSTEM == _QNX_)
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_HIGH;
+#else
     schedParam.__sched_priority = EPL_THREAD_PRIORITY_HIGH;
+#endif
+
     if (pthread_setschedparam(EplTimerHighReskInstance_l.m_thread, SCHED_FIFO, &schedParam) != 0)
     {
         EPL_DBGLVL_ERROR_TRACE1("%s() Couldn't set thread scheduling parameters!\n", __func__);
