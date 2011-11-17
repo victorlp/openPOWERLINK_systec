@@ -3592,7 +3592,7 @@ Exit:
 static tEplKernel EplNmtMnuReset(void)
 {
 tEplKernel  Ret;
-int         iIndex;
+size_t      iIndex;
 
     Ret = EplTimeruDeleteTimer(&EplNmtMnuInstance_g.m_TimerHdlNmtState);
 
@@ -3818,7 +3818,8 @@ DWORD               dwPResMnTimeoutNs;
 
     if (EplNmtMnuInstance_g.m_dwPrcPResMnTimeoutNs < dwPResMnTimeoutNs)
     {
-    tEplDllNodeInfo DllNodeInfo = {0};
+        tEplDllNodeInfo DllNodeInfo;
+        memset(&DllNodeInfo, 0, sizeof(tEplDllNodeInfo));
 
         EplNmtMnuInstance_g.m_dwPrcPResMnTimeoutNs = dwPResMnTimeoutNs;
         DllNodeInfo.m_dwPresTimeoutNs              = dwPResMnTimeoutNs;

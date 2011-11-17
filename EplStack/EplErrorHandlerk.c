@@ -365,7 +365,8 @@ tEplNmtEvent            NmtEvent;
         case kEplEventTypeDllError:
         {
         tEplErrorHandlerkEvent* pErrHandlerEvent = (tEplErrorHandlerkEvent*)pEvent_p->m_pArg;
-        tEplErrHistoryEntry     HistoryEntry = {0};
+        tEplErrHistoryEntry     HistoryEntry;
+        memset(&HistoryEntry, 0, sizeof(tEplErrHistoryEntry));
 
             ulDllErrorEvents = pErrHandlerEvent->m_ulDllErrorEvents;
 

@@ -257,7 +257,7 @@ tEplCfmuNodeInfo*   pNodeInfo;
         pNodeInfo = EPL_CFMU_GET_NODEINFO(uiNodeId);
         if (pNodeInfo != NULL)
         {
-            if (pNodeInfo->m_SdoComConHdl != ~0)
+            if (pNodeInfo->m_SdoComConHdl != ~((tEplSdoComConHdl)0) )
             {
                 Ret = EplSdoComSdoAbort(pNodeInfo->m_SdoComConHdl, EPL_SDOAC_DATA_NOT_TRANSF_DUE_DEVICE_STATE);
             }
@@ -564,7 +564,7 @@ BYTE*                   pbBuffer;
     // abort any running SDO transfer
     pNodeInfo = EPL_CFMU_GET_NODEINFO(pParam_p->m_uiSubIndex);
     if ((pNodeInfo != NULL)
-        && (pNodeInfo->m_SdoComConHdl != ~0))
+        && (pNodeInfo->m_SdoComConHdl != ~((tEplSdoComConHdl)0) ))
     {
         Ret = EplSdoComSdoAbort(pNodeInfo->m_SdoComConHdl, EPL_SDOAC_DATA_NOT_TRANSF_DUE_DEVICE_STATE);
     }
@@ -871,6 +871,8 @@ tEplKernel      Ret = kEplSuccessful;
     {
         EPL_DBGLVL_CFM_TRACE2("CN%x Writing 0x1006 returns 0x%X\n", pNodeInfo_p->m_EventCnProgress.m_uiNodeId, Ret);
     }
+#else
+    UNUSED_PARAMETER(pNodeInfo_p);
 #endif
 
     return Ret;
@@ -1008,7 +1010,7 @@ tEplSdoComTransParamByIndex TransParamByIndex;
         goto Exit;
     }
 
-    if (pNodeInfo_p->m_SdoComConHdl == ~0)
+    if (pNodeInfo_p->m_SdoComConHdl == ~((tEplSdoComConHdl)0) )
     {
         // init command layer connection
         Ret = EplSdoComDefineCon(&pNodeInfo_p->m_SdoComConHdl,
