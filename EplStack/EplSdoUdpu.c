@@ -79,17 +79,24 @@
 #include <linux/kthread.h>
 #endif
 
-#if (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#if ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <pthread.h>
 
-
+#if (TARGET_SYSTEM == _QNX_)
+#define INVALID_SOCKET  -1
+#else
 #define INVALID_SOCKET  0
+#endif
 
+#if (TARGET_SYSTEM == _QNX_)
+typedef int SOCKET;
+#else
 typedef struct socket* SOCKET;
+#endif
 
 #define closesocket close
 #endif
@@ -137,7 +144,7 @@ typedef struct
 
 #elif (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
     struct task_struct*     m_ThreadHandle;
-#elif (TARGET_SYSTEM == _LINUX_) && !defined(__KERNEL__)
+#elif ( (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_) ) && !defined(__KERNEL__)
     pthread_t*              m_ThreadHandle;
 #endif
 
@@ -511,7 +518,7 @@ tEplSdoUdpCon*      pSdoUdpCon;
     pSdoUdpCon = &SdoUdpInstance_g.m_aSdoAbsUdpConnection[0];
     while (uiCount < EPL_SDO_MAX_CONNECTION_UDP)
     {
-        if ((pSdoUdpCon->m_ulIpAddr & htonl(0xFF)) == htonl(uiTargetNodeId_p))
+        if (( pSdoUdpCon->m_ulIpAddr & htonl((uint32_t)0xFF)) == htonl(uiTargetNodeId_p))
         {   // existing connection to target node found
             // set handle
             *pSdoConHandle_p = (uiCount | EPL_SDO_UDP_HANDLE);
@@ -695,6 +702,8 @@ Exit:
 // State:
 //
 //---------------------------------------------------------------------------
+#if (TARGET_SYSTEM != _QNX_)
+
 #if (TARGET_SYSTEM == _WIN32_)
 static DWORD PUBLIC EplSdoUdpThread(LPVOID lpParameter)
 #elif (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
@@ -840,7 +849,7 @@ tEplSdoConHdl       SdoConHdl;
 
 #if (TARGET_SYSTEM == _LINUX_) && defined(__KERNEL__)
 
-    /* Hmm, linux becomes *very* unhappy without this ... */
+    // Hmm, linux becomes *very* unhappy without this ...
     while (!kthread_should_stop()) {
         printk("%s: waiting for kthread_stop()\n", __FUNCTION__);
         set_current_state(TASK_UNINTERRUPTIBLE);
@@ -851,6 +860,7 @@ tEplSdoConHdl       SdoConHdl;
 
     return 0;
 }
+#endif // end of #if (TARGET_SYSTEM != _QNX_)
 
 #endif // end of #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_SDO_UDP)) != 0)
 
