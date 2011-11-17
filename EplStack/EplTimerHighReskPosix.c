@@ -278,12 +278,6 @@ tEplKernel PUBLIC EplTimerHighReskDelInstance(void)
 //
 // Return:      tEplKernel      = error code
 //---------------------------------------------------------------------------
-#define LV_DBG_QNX_TIMER    0
-
-#if (LV_DBG_QNX_TIMER == 1)
-    static struct timespec ts_l;
-    static tEplTimerHdl   TimerHdl_l;
-#endif
 
 tEplKernel PUBLIC EplTimerHighReskModifyTimerNs(tEplTimerHdl*     pTimerHdl_p,
                                     ULONGLONG           ullTimeNs_p,
@@ -398,19 +392,6 @@ tEplKernel PUBLIC EplTimerHighReskModifyTimerNs(tEplTimerHdl*     pTimerHdl_p,
 
     timer_settime(pTimerInfo->m_timer, 0, &RelTime, NULL);
 
-#if (LV_DBG_QNX_TIMER == 1)
-    TimerHdl_l = pTimerInfo->m_EventArg.m_TimerHdl;
-
-    printf("ModifyTimerNs() timer:%lx timeout=%ld:%ld fContinuously_p=%d\n",
-            TimerHdl_l, RelTime.it_value.tv_sec, RelTime.it_value.tv_nsec, fContinuously_p);
-    struct timespec ts;
-//        clock_getres(CLOCK_REALTIME, &ts); //CLOCK_MONOTONIC, &ts);
-//        printf( "EplTimerHighReskModifyTimerNs: Resolution is %ld nano seconds.\n", ts.tv_nsec);
-        clock_gettime(CLOCK_MONOTONIC, &ts);
-        ts_l = ts;
-        printf("ModifyTimerNs(): current time sec: %ld nano: %ld\n", ts.tv_sec, ts.tv_nsec);
-#endif //end of #if (LV_DBG_QNX_TIMER == 1)
-
 Exit:
     return Ret;
 }
@@ -503,10 +484,6 @@ static void * EplTimerHighReskProcessThread(void *pParm_p __attribute((unused)))
     sigset_t                            awaitedSignal;
     siginfo_t                           signalInfo;
 
-#if (LV_DBG_QNX_TIMER == 1)
-    struct timespec ts;
-#endif
-
     EPL_DBGLVL_TIMERH_TRACE2("%s(): ThreadId:%ld\n", __func__, syscall(SYS_gettid));
 
     sigemptyset(&awaitedSignal);
@@ -519,13 +496,6 @@ static void * EplTimerHighReskProcessThread(void *pParm_p __attribute((unused)))
         if ((iRet = sigwaitinfo(&awaitedSignal, &signalInfo)) > 0)
         {
             pTimerInfo = (tEplTimerHighReskTimerInfo *)signalInfo.si_value.sival_ptr;
-#if (LV_DBG_QNX_TIMER == 1)
-      clock_gettime(CLOCK_MONOTONIC, &ts);
-      printf("ProcessThread() timer=%lx\tcurrent time sec: %ld\tnano: %ld\tdt_nano = %ld\n",
-                TimerHdl_l, ts.tv_sec, ts.tv_nsec,
-                (ts.tv_sec - ts_l.tv_sec) > 0 ? ts.tv_nsec + 1000000000 - ts_l.tv_nsec : ts.tv_nsec - ts_l.tv_nsec);//ts.tv_nsec - ts_l.tv_nsec);
-      ts_l = ts;
-#endif
             /* call callback function */
             if (pTimerInfo->m_pfnCallback != NULL)
             {
