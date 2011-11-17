@@ -1466,7 +1466,7 @@ tShbError         ShbError;
 
     ShbIpcEnterAtomicSection (pShbInstance_p);
     {
-        TRACE1("\nBuffer Address:   0x%p\n",       pShbCirBuff);
+        TRACE1("\nBuffer Address:   0x%p\n",       (void*)pShbCirBuff);
 
         TRACE0("\nHeader Info:");
         TRACE2("\nMagigID:          '%s' (%08lX)", szMagigID, pShbCirBuff->m_ShbCirMagicID);
@@ -1480,9 +1480,9 @@ tShbError         ShbError;
         TRACE1("\nBlocksApended:    %4lu",         pShbCirBuff->m_ulBlocksApended);
         TRACE1("\nDataReadable:     %4lu [Bytes]", pShbCirBuff->m_ulDataReadable);
         TRACE1("\nBlocksReadable:   %4lu",         pShbCirBuff->m_ulBlocksReadable);
-        TRACE1("\nSigHndlrNewData:  %p",           pShbCirBuff->m_pfnSigHndlrNewData);
+        TRACE1("\nSigHndlrNewData:  %p",           (void*)(int)pShbCirBuff->m_pfnSigHndlrNewData);
         TRACE1("\nBufferLocked:     %d",           pShbCirBuff->m_fBufferLocked);
-        TRACE1("\nSigHndlrReset:    %p",           pShbCirBuff->m_pfnSigHndlrReset);
+        TRACE1("\nSigHndlrReset:    %p",           (void*)(int)pShbCirBuff->m_pfnSigHndlrReset);
 
         ShbTraceDump (&pShbCirBuff->m_Data, pShbCirBuff->m_ulBufferDataSize,
                       0x00000000L, "\nData Area:");
@@ -1885,7 +1885,7 @@ tShbError     ShbError;
 
     ShbIpcEnterAtomicSection (pShbInstance_p);
     {
-        TRACE1("\nBuffer Address:   0x%p\n", pShbLinBuff);
+        TRACE1("\nBuffer Address:   0x%p\n", (void*)pShbLinBuff);
 
         TRACE0("\nHeader Info:");
         TRACE2("\nMagigID:          '%s' (%08X)", szMagigID, pShbLinBuff->m_ShbLinMagicID);
