@@ -61,7 +61,6 @@
 #include "EplInc.h"
 
 #include <sys/ipc.h>
-#include <sys/shm.h>
 #include <sys/sem.h>
 #include <time.h>
 #include <pthread.h>
@@ -78,7 +77,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <semaphore.h>
+
+#if (TARGET_SYSTEM != _QNX_)
 #include <sys/syscall.h>
+#include <sys/shm.h>
+#endif
 
 /******************************************************************************/
 /*          G L O B A L   D E F I N I T I O N S                               */
@@ -631,12 +634,21 @@ tShbError  ShbIpcStartSignalingNewData(tShbInstance pShbInstance_p,
         goto Exit;
     }
 
+#if (TARGET_SYSTEM == _QNX_)
+    schedParam.sched_priority = iSchedPriority;
+#else
     schedParam.__sched_priority = iSchedPriority;
+#endif
     if (pthread_setschedparam(pShbMemInst->m_tThreadNewDataId, SCHED_FIFO,
                               &schedParam) != 0)
     {
+        #if (TARGET_SYSTEM == _QNX_)
         EPL_DBGLVL_ERROR_TRACE2("%s(): couldn't set thread scheduling parameters! %d\n",
-               __func__, schedParam.__sched_priority);
+                __func__, schedParam.sched_priority);
+        #else
+        EPL_DBGLVL_ERROR_TRACE2("%s(): couldn't set thread scheduling parameters! %d\n",
+                __func__, schedParam.__sched_priority);
+        #endif
     }
 
 Exit:
@@ -793,12 +805,21 @@ tShbError ShbIpcStartSignalingJobReady(tShbInstance pShbInstance_p,
         goto Exit;
     }
 
+#if (TARGET_SYSTEM == _QNX_)
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_LOW;
+#else
     schedParam.__sched_priority = EPL_THREAD_PRIORITY_LOW;
+#endif
     if (pthread_setschedparam(pShbMemInst->m_tThreadNewDataId, SCHED_FIFO,
                               &schedParam) != 0)
     {
+        #if (TARGET_SYSTEM == _QNX_)
+        EPL_DBGLVL_ERROR_TRACE2("%s(): couldn't set thread scheduling parameters! %d\n",
+               __func__, schedParam.sched_priority);
+        #else
         EPL_DBGLVL_ERROR_TRACE2("%s(): couldn't set thread scheduling parameters! %d\n",
                __func__, schedParam.__sched_priority);
+        #endif
     }
 
 Exit:
