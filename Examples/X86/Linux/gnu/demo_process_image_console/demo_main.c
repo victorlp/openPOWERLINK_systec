@@ -288,6 +288,19 @@ int  main (int argc, char **argv)
     int                         inum;
 #endif
 
+#if (TARGET_SYSTEM == _QNX_)
+    //qnx set time period
+        struct _clockperiod new;
+        struct _clockperiod old;
+
+        new.nsec = 90000;
+
+        if(ClockPeriod( CLOCK_REALTIME, &new, &old, 0 ) == -1) printf("ClockPeriod error\n");
+
+        printf("old period nsec = %ld\n", old.nsec);
+        printf("new period nsec = %ld\n", new.nsec);
+#endif
+
     int                         opt;
 
     /* get command line parameters */
