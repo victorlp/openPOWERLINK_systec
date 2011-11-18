@@ -85,7 +85,7 @@ SET_PROPERTY(TARGET demo_pi_console
              PROPERTY COMPILE_DEFINITIONS_DEBUG DEBUG;DEF_DEBUG_LVL=${CFG_DEBUG_LVL})                   
             
 IF (NOT CFG_KERNEL_STACK)
-    TARGET_LINK_LIBRARIES(demo_pi_console powerlink pcap pthread rt)
+    TARGET_LINK_LIBRARIES(demo_pi_console powerlink pcap socket)
 ELSE (NOT CFG_KERNEL_STACK)
     TARGET_LINK_LIBRARIES(demo_pi_console pthread rt)
 ENDIF (NOT CFG_KERNEL_STACK)  
