@@ -979,7 +979,11 @@ void *ShbIpcThreadSignalNewData (void *pvThreadParam_p)
     struct timespec     curTime, timeout;
     INT                 iRetVal;
 
+#if (TARGET_SYSTEM == _QNX_)
+    EPL_DBGLVL_SHB_TRACE2("%s(): ThreadId:%ld\n", __func__, pthread_self() );
+#else
     EPL_DBGLVL_SHB_TRACE2("%s(): ThreadId:%ld\n", __func__, syscall(SYS_gettid));
+#endif
 
     /* thread parameter contains pointer to shared memory */
     pShbInstance = (tShbMemInst*)pvThreadParam_p;
@@ -1039,7 +1043,11 @@ void *ShbIpcThreadSignalJobReady (void *pvThreadParam_p)
     UINT                fTimeOut;
     struct timespec     timeout;
 
+#if (TARGET_SYSTEM == _QNX_)
+    EPL_DBGLVL_SHB_TRACE2("%s(): ThreadId:%ld\n", __func__, pthread_self() );
+#else
     EPL_DBGLVL_SHB_TRACE2("%s(): ThreadId:%ld\n", __func__, syscall(SYS_gettid));
+#endif
 
     pShbInstance = (tShbMemInst*)pvThreadParam_p;
     pShbMemInst = ShbIpcGetShbMemInst (pShbInstance);

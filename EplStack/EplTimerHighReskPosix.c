@@ -484,7 +484,11 @@ static void * EplTimerHighReskProcessThread(void *pParm_p __attribute((unused)))
     sigset_t                            awaitedSignal;
     siginfo_t                           signalInfo;
 
+#if (TARGET_SYSTEM == _QNX_)
+    EPL_DBGLVL_TIMERH_TRACE2("%s(): ThreadId:%ld\n", __func__, pthread_self() );
+#else
     EPL_DBGLVL_TIMERH_TRACE2("%s(): ThreadId:%ld\n", __func__, syscall(SYS_gettid));
+#endif
 
     sigemptyset(&awaitedSignal);
     sigaddset(&awaitedSignal, SIGHIGHRES);

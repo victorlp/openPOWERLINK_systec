@@ -643,7 +643,11 @@ static void * EdrvWorkerThread(void *pArgument_p)
     tEdrvInstance*  pInstance = (tEdrvInstance *)pArgument_p;
     char sErr_Msg[ PCAP_ERRBUF_SIZE ];
 
+#if (TARGET_SYSTEM == _QNX_)
+    EPL_DBGLVL_EDRV_TRACE2("%s(): ThreadId:%ld\n", __func__, pthread_self() );
+#else
     EPL_DBGLVL_EDRV_TRACE2("%s(): ThreadId:%ld\n", __func__, syscall(SYS_gettid));
+#endif
 
     pInstance->m_pPcapThread =
         pcap_open_live (pInstance->m_initParam.m_HwParam.m_pszDevName,
