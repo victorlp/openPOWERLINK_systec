@@ -56,6 +56,9 @@
 
 /***************************************************************************/
 /* includes */
+
+#include "Epl.h"
+
 #include <stdio.h>
 #include <unistd.h>
 #include <pcap.h>
@@ -68,7 +71,6 @@
 #include <string.h>
 #include <termios.h>
 #include <pthread.h>
-#include <sys/syscall.h>
 #include <sys/resource.h>
 #include <errno.h>
 
@@ -82,7 +84,11 @@
 #include <pthread.h>
 #endif
 
-#include "Epl.h"
+#if (TARGET_SYSTEM == _QNX_)
+#include <sys/neutrino.h>
+#else
+#include <sys/syscall.h>
+#endif
 
 /***************************************************************************/
 /*                                                                         */
@@ -112,6 +118,9 @@
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
+#if (TARGET_SYSTEM == _QNX_)
+typedef unsigned int uint;
+#endif
 
 CONST BYTE abMacAddr[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static uint uiNodeId_g = EPL_C_ADR_INVALID;
@@ -328,14 +337,24 @@ int  main (int argc, char **argv)
     {
         EPL_DBGLVL_ERROR_TRACE2("%s() couldn't set nice value! (%s)\n", __func__, strerror(errno));
     }
+#if (TARGET_SYSTEM == _QNX_)
+    schedParam.sched_priority = MAIN_THREAD_PRIORITY;
+#else
     schedParam.__sched_priority = MAIN_THREAD_PRIORITY;
+#endif
     if (pthread_setschedparam(pthread_self(), SCHED_RR, &schedParam) != 0)
     {
+        #if (TARGET_SYSTEM == _QNX_)
+        EPL_DBGLVL_ERROR_TRACE2("%s() couldn't set thread scheduling parameters! %d\n",
+                __func__, schedParam.sched_priority);
+        #else
         EPL_DBGLVL_ERROR_TRACE2("%s() couldn't set thread scheduling parameters! %d\n",
                 __func__, schedParam.__sched_priority);
+        #endif
     }
 
 #ifdef SET_CPU_AFFINITY
+#if (TARGET_SYSTEM != _QNX_)
     {
         /* binds all openPOWERLINK threads to the first CPU core */
         cpu_set_t                   affinity;
@@ -344,6 +363,7 @@ int  main (int argc, char **argv)
         CPU_SET(0, &affinity);
         sched_setaffinity(0, sizeof(cpu_set_t), &affinity);
     }
+#endif
 #endif
 
     /* Initialize target specific stuff */
