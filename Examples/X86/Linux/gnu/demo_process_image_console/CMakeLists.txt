@@ -52,7 +52,7 @@
 
 # additional compiler flags
 
-ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -pthread -D_GNU_SOURCE
+ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -D_QNX_SOURCE
                     -D_POSIX_C_SOURCE=200112L)
 
 # additional include directories

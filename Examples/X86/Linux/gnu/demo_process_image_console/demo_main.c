@@ -59,12 +59,6 @@
 
 #include "Epl.h"
 
-#if (TARGET_SYSTEM == _QNX_)
-typedef unsigned int u_int;
-typedef unsigned short u_short;
-typedef unsigned char u_char;
-#endif
-
 #include <stdio.h>
 #include <unistd.h>
 #include <pcap.h>
@@ -124,10 +118,6 @@ typedef unsigned char u_char;
 //---------------------------------------------------------------------------
 // module global vars
 //---------------------------------------------------------------------------
-#if (TARGET_SYSTEM == _QNX_)
-typedef unsigned int uint;
-#endif
-
 CONST BYTE abMacAddr[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 static uint uiNodeId_g = EPL_C_ADR_INVALID;
 static uint uiCycleLen_g = 0;

@@ -55,12 +55,6 @@
 
 #include "edrv.h"
 
-#if (TARGET_SYSTEM == _QNX_)
-typedef	unsigned int u_int;
-typedef	unsigned short u_short;
-typedef	unsigned char u_char;
-#endif
-
 #include <unistd.h>
 #include <pcap.h>
 #include <string.h>
@@ -166,42 +160,40 @@ static void *EdrvWorkerThread(void *);
 static void getMacAdrs(char *ifName, BYTE *macAdrs)
 {
 #if (TARGET_SYSTEM == _QNX_)
-	enum {MAC_LEN=6};
-	struct ifaddrs *ifaphead;
-	int found = 0;
-	struct ifaddrs *ifap;
-	struct sockaddr_dl *sdl = NULL;
+    enum {MAC_LEN = 6};
+    struct ifaddrs *ifaphead = NULL;
+    int found = 0;
+    struct ifaddrs *ifap;
+    struct sockaddr_dl *sdl = NULL;
 
-	memset(macAdrs, 0, MAC_LEN);
+    memset(macAdrs, 0, MAC_LEN);
 
-	if (getifaddrs(&ifaphead) != 0)
-	{
-//		printf("getMacAdrs(): getifaddrs() failed\n");
-	}
+    if (getifaddrs(&ifaphead) != 0)
+    {
+//      printf("getMacAdrs(): getifaddrs() failed\n");
+        goto Exit;
+    }
 
-	for (ifap = ifaphead; ifap && !found; ifap = ifap->ifa_next)
-	{
-		if ((ifap->ifa_addr->sa_family == AF_LINK))
-		{
-			if (strlen(ifap->ifa_name) == strlen(ifName))
-				if (strcmp(ifap->ifa_name,ifName) == 0)
-				{
-					found = 1;
-					sdl = (struct sockaddr_dl *)ifap->ifa_addr;
-					if (sdl)
-					{
-						memcpy(macAdrs, LLADDR(sdl), MAC_LEN);
-					}
-				}
-		}
-	}
-//	if (!found)
-//	{
-//		printf (stderr,"Can't find interface %s.\n",ifName);
-//	}
+    for (ifap = ifaphead; ifap && !found; ifap = ifap->ifa_next)
+    {
+        if ((ifap->ifa_addr->sa_family == AF_LINK))
+        {
+            if (strlen(ifap->ifa_name) == strlen(ifName))
+                if (strcmp(ifap->ifa_name,ifName) == 0)
+                {
+                    found = 1;
+                    sdl = (struct sockaddr_dl *)ifap->ifa_addr;
+                    if (sdl)
+                    {
+                        memcpy(macAdrs, LLADDR(sdl), MAC_LEN);
+                    }
+                }
+        }
+    }
 
-	if(ifaphead)
-		freeifaddrs(ifaphead);
+Exit:
+    if(ifaphead)
+        freeifaddrs(ifaphead);
 #else
     int    fd;
     struct ifreq ifr;
@@ -631,10 +623,10 @@ static void EdrvPacketHandler(u_char *pUser_p,
 static int pcap_ex_immediate(pcap_t *pcap)
 {
 #ifdef BIOCIMMEDIATE
-	int n = 1;
-	return ioctl(pcap_fileno(pcap), BIOCIMMEDIATE, &n);
+    int n = 1;
+    return ioctl(pcap_fileno(pcap), BIOCIMMEDIATE, &n);
 #else
-	return 0;
+    return 0;
 #endif
 }
 

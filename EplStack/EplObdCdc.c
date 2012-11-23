@@ -138,7 +138,7 @@
     #define flush  _commit
     #define mode_t int
 
-#elif (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
+#elif (TARGET_SYSTEM == _LINUX_)
 
     #define O_BINARY 0
     #define _MAX_PATH PATH_MAX
