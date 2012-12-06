@@ -70,24 +70,32 @@ INCLUDE(CMakeDependentOption)
 
 # some compilation options if we compile on a unix system
 IF (UNIX)
-    SET(CFG_KERNEL_DIR "" CACHE PATH
-        "Select the kernel directory to be used, if not specified, system kernel dir will be used!")
-    SET(CFG_DEBUG_LVL "0xEC000000L" CACHE STRING "Debug Level for debug output")
+    IF (QNXNTO)
+        SET(CFG_DEBUG_LVL "0xEC000000L" CACHE STRING "Debug Level for debug output")
+        OPTION (CFG_POWERLINK_CFM "Use POWERLINK configuration manager (CFM)" ON)
+        OPTION (CFG_POWERLINK_PROCESS_IMAGE "Use process image to transfer synchronous data between stack and application" ON)
+        CMAKE_DEPENDENT_OPTION (CFG_X86_QNX6_DEMO_PROCESS_IMAGE_CONSOLE "Build Linux process image based console demo application" ON
+                                "CFG_POWERLINK_PROCESS_IMAGE" ON)
+    ELSE (QNXNTO)
+        SET(CFG_KERNEL_DIR "" CACHE PATH
+            "Select the kernel directory to be used, if not specified, system kernel dir will be used!")
+        SET(CFG_DEBUG_LVL "0xEC000000L" CACHE STRING "Debug Level for debug output")
 
-    SET(CFG_POWERLINK_EDRV "82573" CACHE STRING "Valid drivers are 8139,82573")
-    OPTION (CFG_POWERLINK_CFM "Use POWERLINK configuration manager (CFM)" ON)
-    OPTION (CFG_POWERLINK_PROCESS_IMAGE "Use process image to transfer synchronous data between stack and application" ON)
+        SET(CFG_POWERLINK_EDRV "82573" CACHE STRING "Valid drivers are 8139,82573")
+        OPTION (CFG_POWERLINK_CFM "Use POWERLINK configuration manager (CFM)" ON)
+        OPTION (CFG_POWERLINK_PROCESS_IMAGE "Use process image to transfer synchronous data between stack and application" ON)
 
-    OPTION (CFG_KERNEL_STACK "Use POWERLINK kernel based stack (if OFF, userspace library will be used!)" OFF)
-    
-    OPTION (CFG_X86_LINUX_DEMO_KERNEL "Build Linux kernel based demo application" OFF)
-    CMAKE_DEPENDENT_OPTION (CFG_X86_LINUX_DEMO_QT "Build Linux QT demo application" OFF
-                            "NOT CFG_POWERLINK_PROCESS_IMAGE;CFG_KERNEL_STACK" OFF)
-    CMAKE_DEPENDENT_OPTION (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_CONSOLE "Build Linux process image based console demo application" OFF
-                            "CFG_POWERLINK_PROCESS_IMAGE" OFF)
-    CMAKE_DEPENDENT_OPTION (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_QT "Build Linux process image based QT demo application" ON
-                            "CFG_POWERLINK_PROCESS_IMAGE" OFF)
-ENDIF (UNIX)   
+        OPTION (CFG_KERNEL_STACK "Use POWERLINK kernel based stack (if OFF, userspace library will be used!)" OFF)
+
+        OPTION (CFG_X86_LINUX_DEMO_KERNEL "Build Linux kernel based demo application" OFF)
+        CMAKE_DEPENDENT_OPTION (CFG_X86_LINUX_DEMO_QT "Build Linux QT demo application" OFF
+                                "NOT CFG_POWERLINK_PROCESS_IMAGE;CFG_KERNEL_STACK" OFF)
+        CMAKE_DEPENDENT_OPTION (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_CONSOLE "Build Linux process image based console demo application" OFF
+                                "CFG_POWERLINK_PROCESS_IMAGE" OFF)
+        CMAKE_DEPENDENT_OPTION (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_QT "Build Linux process image based QT demo application" ON
+                                "CFG_POWERLINK_PROCESS_IMAGE" OFF)
+    ENDIF (QNXNTO)
+ENDIF (UNIX)
 
 ###############################################################################
 # Set global definitions
@@ -108,34 +116,41 @@ SET(EDRV_SOURCE_DIR ${CMAKE_SOURCE_DIR}/Edrv)
 ###############################################################################
 IF(UNIX)
 
-# Add subdirectory of pcap based MN CFM library
-IF (NOT CFG_KERNEL_STACK)
-    ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/powerlink_user_lib)
-ENDIF (NOT CFG_KERNEL_STACK)
+IF (QNXNTO)
+    ADD_SUBDIRECTORY(Examples/X86/QNX6/gnu/powerlink_user_lib)
+    IF (CFG_X86_QNX6_DEMO_PROCESS_IMAGE_CONSOLE)
+        ADD_SUBDIRECTORY(Examples/X86/QNX6/gnu/demo_process_image_console)
+    ENDIF (CFG_X86_QNX6_DEMO_PROCESS_IMAGE_CONSOLE)
+ELSE (QNXNTO)
+    # Add subdirectory of pcap based MN CFM library
+    IF (NOT CFG_KERNEL_STACK)
+        ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/powerlink_user_lib)
+    ENDIF (NOT CFG_KERNEL_STACK)
 
-# Add subdirectory of kernel module
-IF (CFG_KERNEL_STACK)
-    ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/powerlink_kernel_module)
-ENDIF (CFG_KERNEL_STACK)
+    # Add subdirectory of kernel module
+    IF (CFG_KERNEL_STACK)
+        ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/powerlink_kernel_module)
+    ENDIF (CFG_KERNEL_STACK)
 
-# Add subdirectory of kernel demo application        
-IF (CFG_X86_LINUX_DEMO_KERNEL)
-    ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_kernel)
-ENDIF (CFG_X86_LINUX_DEMO_KERNEL)
-        
-# Add subdirectory of QT demo application
-IF (CFG_X86_LINUX_DEMO_QT)
-    ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_qt)
-ENDIF (CFG_X86_LINUX_DEMO_QT)
+    # Add subdirectory of kernel demo application
+    IF (CFG_X86_LINUX_DEMO_KERNEL)
+        ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_kernel)
+    ENDIF (CFG_X86_LINUX_DEMO_KERNEL)
 
-# Add subdirectory of process image based QT demo application
-IF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_QT)
-    ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_process_image_qt)
-ENDIF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_QT)
+    # Add subdirectory of QT demo application
+    IF (CFG_X86_LINUX_DEMO_QT)
+        ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_qt)
+    ENDIF (CFG_X86_LINUX_DEMO_QT)
 
-# Add subdirectory of process image based console demo application        
-IF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_CONSOLE)
-    ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_process_image_console)
-ENDIF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_CONSOLE)
+    # Add subdirectory of process image based QT demo application
+    IF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_QT)
+        ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_process_image_qt)
+    ENDIF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_QT)
+
+    # Add subdirectory of process image based console demo application
+    IF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_CONSOLE)
+        ADD_SUBDIRECTORY(Examples/X86/Linux/gnu/demo_process_image_console)
+    ENDIF (CFG_X86_LINUX_DEMO_PROCESS_IMAGE_CONSOLE)
+ENDIF (QNXNTO)
 
 ENDIF(UNIX)

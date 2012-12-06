@@ -6,7 +6,7 @@
 #     B&R Strasse 1, A-5142 Eggelsberg
 #     www.br-automation.com
 #
-# Description: cmake file of linux userspace openPOWERLINK library
+# Description: cmake file of QNX6 openPOWERLINK library
 #
 # License:
 #
@@ -53,7 +53,8 @@
 #
 # additional compiler flags
 #
-ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -pthread -D_GNU_SOURCE
+
+ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -D_QNX_SOURCE
                 -D_POSIX_C_SOURCE=200112L)
 
 #

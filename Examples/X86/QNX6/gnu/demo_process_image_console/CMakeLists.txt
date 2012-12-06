@@ -6,7 +6,7 @@
 #     B&R Strasse 1, A-5142 Eggelsberg
 #     www.br-automation.com
 #
-# Description: cmake file of linux userspace demo application
+# Description: cmake file of QNX6 demo application
 #
 # License:
 #
@@ -52,7 +52,7 @@
 
 # additional compiler flags
 
-ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -pthread -D_GNU_SOURCE
+ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -D_QNX_SOURCE
                     -D_POSIX_C_SOURCE=200112L)
 
 # additional include directories
@@ -64,37 +64,19 @@ SET (DEMO_SOURCES
         demo_main.c
         ${POWERLINK_SOURCE_DIR}/ObjDicts/CiA302-4_MN/EplApiProcessImageSetup.c
         )
-	
-IF (CFG_KERNEL_STACK)
-    SET(DEMO_SOURCES ${DEMO_SOURCES}
-        ${POWERLINK_SOURCE_DIR}/EplStack/EplDebug.c
-        ${POWERLINK_SOURCE_DIR}/EplStack/EplApiLinuxUser.c
-        )
-    INCLUDE_DIRECTORIES(${KERNELMOD_INCLUDE_DIR})
-    ADD_DEFINITIONS(-DCONFIG_POWERLINK_KERNELSTACK)
-ELSE (CFG_KERNEL_STACK)
-    INCLUDE_DIRECTORIES(${USERLIB_INCLUDE_DIR})
-    ADD_DEFINITIONS(-DCONFIG_POWERLINK_USERSTACK)
-ENDIF (CFG_KERNEL_STACK) 	
-	
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})	
-                    
+
+INCLUDE_DIRECTORIES(${USERLIB_INCLUDE_DIR})
+ADD_DEFINITIONS(-DCONFIG_POWERLINK_USERSTACK)
+
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+
 ADD_EXECUTABLE(demo_pi_console ${DEMO_SOURCES})
 
 SET_PROPERTY(TARGET demo_pi_console
-             PROPERTY COMPILE_DEFINITIONS_DEBUG DEBUG;DEF_DEBUG_LVL=${CFG_DEBUG_LVL})                   
-            
-IF (NOT CFG_KERNEL_STACK)
-    TARGET_LINK_LIBRARIES(demo_pi_console powerlink pcap pthread rt)
-ELSE (NOT CFG_KERNEL_STACK)
-    TARGET_LINK_LIBRARIES(demo_pi_console pthread rt)
-ENDIF (NOT CFG_KERNEL_STACK)  
+             PROPERTY COMPILE_DEFINITIONS_DEBUG DEBUG;DEF_DEBUG_LVL=${CFG_DEBUG_LVL})
+
+TARGET_LINK_LIBRARIES(demo_pi_console powerlink pcap socket)
 
 # add installation rules
 INSTALL(TARGETS demo_pi_console RUNTIME DESTINATION bin)
 INSTALL(FILES mnobd.cdc DESTINATION bin)
-IF (NOT CFG_KERNEL_STACK)
-    INSTALL(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/../tools/set_prio DESTINATION bin)
-ENDIF (NOT CFG_KERNEL_STACK)
-            
-                
