@@ -113,8 +113,17 @@
         #include <utime.h>
         #include <limits.h>
     #endif
+
 #elif (TARGET_SYSTEM == _VXWORKS_)
         #include "ioLib.h"
+
+#elif(TARGET_SYSTEM == _QNX_)
+        #include <unistd.h>
+        #include <sys/statvfs.h>
+        #include <sys/types.h>
+        #include <sys/timeb.h>
+        #include <utime.h>
+        #include <limits.h>
 #endif
 
 #if (TARGET_SYSTEM == _WIN32_)

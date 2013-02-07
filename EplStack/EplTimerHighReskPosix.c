@@ -76,7 +76,10 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
+
+#if (TARGET_SYSTEM != _QNX_)
 #include <sys/syscall.h>
+#endif
 
 //=========================================================================//
 // Definitions                                                             //
@@ -475,7 +478,11 @@ static void * EplTimerHighReskProcessThread(void *pParm_p __attribute((unused)))
     sigset_t                            awaitedSignal;
     siginfo_t                           signalInfo;
 
+#if (TARGET_SYSTEM == _QNX_)
+    EPL_DBGLVL_TIMERH_TRACE("%s(): ThreadId:%ld\n", __func__, pthread_self() );
+#else
     EPL_DBGLVL_TIMERH_TRACE("%s(): ThreadId:%ld\n", __func__, syscall(SYS_gettid));
+#endif
 
     sigemptyset(&awaitedSignal);
     sigaddset(&awaitedSignal, SIGHIGHRES);
