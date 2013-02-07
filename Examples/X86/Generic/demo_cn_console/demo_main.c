@@ -63,7 +63,7 @@
 #include "Epl.h"
 #include <stddef.h>
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -75,7 +75,7 @@
 #include <string.h>
 #include <termios.h>
 #include <pthread.h>
-#include <sys/syscall.h>
+//#include <sys/syscall.h>
 #include <sys/resource.h>
 #include <errno.h>
 
@@ -84,6 +84,12 @@
 #include <signal.h>
 #include <time.h>
 #include <stdarg.h>
+
+#if (TARGET_SYSTEM == _QNX_)
+#include <sys/neutrino.h>
+#else
+#include <sys/syscall.h>
+#endif
 
 #ifndef CONFIG_POWERLINK_USERSTACK
 #include <pthread.h>
@@ -108,7 +114,7 @@
 //---------------------------------------------------------------------------
 // const defines
 //---------------------------------------------------------------------------
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 
 #define SET_CPU_AFFINITY
 #define MAIN_THREAD_PRIORITY            20
@@ -210,7 +216,7 @@ static void printlog(char *fmt, ...)
 
     time(&timeStamp);
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     localtime_r(&timeStamp, &timeVal);
     strftime(timeStr, 20, "%Y/%m/%d %H:%M:%S", &timeVal);
 #else
@@ -255,7 +261,7 @@ int  main (int argc, char **argv)
     unsigned int                uiVarEntries;
 
 #ifdef CONFIG_POWERLINK_USERSTACK
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     struct sched_param          schedParam;
 #endif
 
@@ -269,7 +275,7 @@ int  main (int argc, char **argv)
 #endif
 
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     {
     int                         opt;
 
@@ -296,19 +302,22 @@ int  main (int argc, char **argv)
 
 #ifdef CONFIG_POWERLINK_USERSTACK
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     /* adjust process priority */
     if (nice (-20) == -1)         // push nice level in case we have no RTPreempt
     {
         EPL_DBGLVL_ERROR_TRACE("%s() couldn't set nice value! (%s)\n", __func__, strerror(errno));
     }
-    schedParam.__sched_priority = MAIN_THREAD_PRIORITY;
+
+    schedParam.sched_priority = MAIN_THREAD_PRIORITY;
+
     if (pthread_setschedparam(pthread_self(), SCHED_RR, &schedParam) != 0)
     {
         EPL_DBGLVL_ERROR_TRACE("%s() couldn't set thread scheduling parameters! %d\n",
-                __func__, schedParam.__sched_priority);
+                __func__, schedParam.sched_priority);
     }
 
+#if (TARGET_SYSTEM == _LINUX_)
 #ifdef SET_CPU_AFFINITY
     {
         /* binds all openPOWERLINK threads to the first CPU core */
@@ -318,6 +327,7 @@ int  main (int argc, char **argv)
         CPU_SET(0, &affinity);
         sched_setaffinity(0, sizeof(cpu_set_t), &affinity);
     }
+#endif
 #endif
 
     /* Initialize target specific stuff */
@@ -661,7 +671,7 @@ tEplKernel PUBLIC AppCbEvent(
     void GENERIC*           pUserArg_p)    //__attribute((unused))
 
 {
-//UNUSED_PARAMETER(pUserArg_p);
+UNUSED_PARAMETER(pUserArg_p);
 
     tEplKernel          EplRet = kEplSuccessful;
 
