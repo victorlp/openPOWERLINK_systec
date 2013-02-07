@@ -518,7 +518,7 @@ tEplSdoUdpCon*      pSdoUdpCon;
     pSdoUdpCon = &SdoUdpInstance_g.m_aSdoAbsUdpConnection[0];
     while (uiCount < EPL_SDO_MAX_CONNECTION_UDP)
     {
-        if ((pSdoUdpCon->m_ulIpAddr & htonl(0xFF)) == htonl(uiTargetNodeId_p))
+        if (( pSdoUdpCon->m_ulIpAddr & htonl((UINT32)0xFF)) == htonl(uiTargetNodeId_p))
         {   // existing connection to target node found
             // set handle
             *pSdoConHandle_p = (uiCount | EPL_SDO_UDP_HANDLE);

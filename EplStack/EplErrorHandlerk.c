@@ -365,7 +365,8 @@ tEplNmtEvent            NmtEvent;
         case kEplEventTypeDllError:
         {
         tEplErrorHandlerkEvent* pErrHandlerEvent = (tEplErrorHandlerkEvent*)pEvent_p->m_pArg;
-        tEplErrHistoryEntry     HistoryEntry = {0};
+        tEplErrHistoryEntry     HistoryEntry;
+        memset(&HistoryEntry, 0, sizeof(tEplErrHistoryEntry));
 
             ulDllErrorEvents = pErrHandlerEvent->m_ulDllErrorEvents;
 
@@ -764,6 +765,8 @@ tEplKernel              Ret = kEplSuccessful;
         }
     }
     else
+#else
+    UNUSED_PARAMETER(fMN_p);
 #endif
     {   // local node is CN -> decrement CN threshold counters
 

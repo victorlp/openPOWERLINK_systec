@@ -919,6 +919,7 @@ static unsigned int EplPdouTxPdoIdToChannelId(unsigned int uiPdoId_p)
 #if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
     return EplPdouInstance_g.m_abPdoIdToChannelIdTx[uiPdoId_p];
 #else
+    UNUSED_PARAMETER(uiPdoId_p);
     return 0;
 #endif
 }

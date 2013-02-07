@@ -320,14 +320,16 @@ tEplKernel  Ret;
         }
 #else
         Ret = kEplInvalidOperation;
+        UNUSED_PARAMETER(pfnCbResponse_p);
 #endif
     }
     else
     {   // invalid node ID specified
         Ret = kEplInvalidNodeId;
     }
-
+#if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
 Exit:
+#endif
     return Ret;
 
 }

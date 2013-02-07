@@ -267,15 +267,15 @@ tEplKernel  Ret;
 tEplKernel PUBLIC EplIdentuReset()
 {
 tEplKernel  Ret;
-int         iIndex;
+unsigned int uiIndex;
 
     Ret = kEplSuccessful;
 
-    for (iIndex = 0; iIndex < tabentries (EplIdentuInstance_g.m_apIdentResponse); iIndex++)
+    for (uiIndex = 0; uiIndex < tabentries (EplIdentuInstance_g.m_apIdentResponse); uiIndex++)
     {
-        if (EplIdentuInstance_g.m_apIdentResponse[iIndex] != NULL)
+        if (EplIdentuInstance_g.m_apIdentResponse[uiIndex] != NULL)
         {   // free memory
-            EPL_FREE(EplIdentuInstance_g.m_apIdentResponse[iIndex]);
+            EPL_FREE(EplIdentuInstance_g.m_apIdentResponse[uiIndex]);
         }
     }
 
@@ -383,14 +383,16 @@ tEplKernel  Ret;
         }
 #else
         Ret = kEplInvalidOperation;
+        UNUSED_PARAMETER(pfnCbResponse_p);
 #endif
     }
     else
     {   // invalid node ID specified
         Ret = kEplInvalidNodeId;
     }
-
+#if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
 Exit:
+#endif
     return Ret;
 
 }
