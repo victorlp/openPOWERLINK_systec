@@ -148,7 +148,6 @@
         #define EplTgtEnableGlobalInterrupt ShbTgtEnableGlobalInterrupt
     #endif
 
-
 #elif (TARGET_SYSTEM == _LINUX_)
 
     #ifndef __KERNEL__
@@ -186,6 +185,13 @@
     #include <string.h>
 
     #define PRINTF(...)                      printf(__VA_ARGS__)
+
+#elif (TARGET_SYSTEM == _QNX_)
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <string.h>
+
+    #define PRINTF(...)                 printf(__VA_ARGS__)
 
 #endif
 

@@ -97,6 +97,7 @@
 #define _DEV_WIN32_             (_DEV_BIT32_ | _DEV_MSVC32_                   | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_WIN_CE_            (_DEV_BIT32_ | _DEV_MSEVC_                    | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_LINUX_             (_DEV_BIT32_ | _DEV_LINUX_GCC_                | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
+#define _DEV_QNX_               (_DEV_BIT32_ | _DEV_GNUC_X86_                 | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_GNU_CF548X_        (_DEV_BIT32_ | _DEV_GNUC_CF_   | _DEV_BIGEND_ | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_)
 #define _DEV_GNU_I386_          (_DEV_BIT32_ | _DEV_GNUC_X86_                 | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_ | _DEV_ONLY_INT_MAIN_)
 #define _DEV_NIOS2_             (_DEV_BIT32_ | _DEV_GNUC_NIOS2_               | _DEV_64BIT_SUPPORT_ | _DEV_COMMA_EXT_ | _DEV_ONLY_INT_MAIN_ | _DEV_ALIGNMENT_4_ )
@@ -122,6 +123,7 @@
 #define _PXROS_              2
 #define _ECOSPRO_            3
 #define _VXWORKS_            4
+#define _QNX_                5
 
 
 //---------------------------------------------------------------------------
@@ -149,6 +151,10 @@
     #if defined (LINUX) || defined (__linux__)
         #define TARGET_SYSTEM   _LINUX_     // Linux definition
         #define DEV_SYSTEM      _DEV_LINUX_
+
+    #elif defined (__QNX__)
+        #define TARGET_SYSTEM   _QNX_       // QNX definition
+        #define DEV_SYSTEM      _DEV_QNX_
 
     #elif defined (GNU_CF548X)
         #define TARGET_SYSTEM   _NO_OS_
@@ -254,6 +260,49 @@
     #endif
 
     #define UNUSED_PARAMETER(par)
+
+// ------------------ GNUC for QNX ----------------------------------------
+#elif (TARGET_SYSTEM == _QNX_)
+
+    #include <string.h>
+
+    #define ROM_INIT                // variables will be initialized directly in ROM (means no copy from RAM in startup)
+    #define ROM                     // code or variables mapped to ROM (i.e. flash)
+                                    // usage: CONST BYTE ROM foo = 0x00;
+    #define HWACC                   // hardware access through external memory (i.e. CAN)
+
+    // These types can be adjusted by users to match application requirements. The goal is to
+    // minimize code memory and maximize speed.
+    #define GENERIC                 // generic pointer to point to application data
+                                    // Variables with this attribute can be located in external
+                                    // or internal data memory.
+    #define MEM                     // Memory attribute to optimize speed and code of pointer access.
+
+    #ifndef NEAR
+        #define NEAR                // variables mapped to internal data storage location
+    #endif
+
+    #ifndef FAR
+        #define FAR                 // variables mapped to external data storage location
+    #endif
+
+    #ifndef CONST
+        #define CONST const         // variables mapped to ROM (i.e. flash)
+    #endif
+
+    #define LARGE
+
+    #define REENTRANT
+    #define PUBLIC
+
+    #ifndef NDEBUG
+        #include <stdio.h>              // prototype printf() (for TRACE)
+        #define TRACE(...)  printf(__VA_ARGS__)
+    #else
+        #define TRACE(...)
+    #endif
+
+    #define UNUSED_PARAMETER(par) par = par
 
 // ------------------ GNUC for VxWorks ---------------------------------------
 #elif (TARGET_SYSTEM == _VXWORKS_)
