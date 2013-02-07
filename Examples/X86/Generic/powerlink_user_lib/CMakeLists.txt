@@ -138,11 +138,19 @@ SET (LIB_SOURCES ${LIB_SOURCES}
     )
 
 IF (UNIX)
+    IF (QNXNTO)
+        SET (LIB_SOURCES ${LIB_SOURCES}
+                     ${POWERLINK_SOURCE_DIR}/SharedBuff/ShbIpc-QNX.c
+            )
+    ELSE (QNXNTO)
+        SET (LIB_SOURCES ${LIB_SOURCES}
+                     ${POWERLINK_SOURCE_DIR}/SharedBuff/ShbIpc-LinuxPthreads.c
+            )
+    ENDIF (QNXNTO)
     SET (LIB_SOURCES ${LIB_SOURCES}
                      ${POWERLINK_SOURCE_DIR}/EplStack/EplSdoUdpu.c
                      ${POWERLINK_SOURCE_DIR}/EplStack/EplTimeruLinuxUser.c
                      ${POWERLINK_SOURCE_DIR}/EplStack/EplTimerHighReskPosix.c
-                     ${POWERLINK_SOURCE_DIR}/SharedBuff/ShbIpc-LinuxPthreads.c
                      ${POWERLINK_SOURCE_DIR}/Target/X86/Linux/gnu/generic/ftraceDebug.c
                      ${POWERLINK_SOURCE_DIR}/Target/X86/Linux/gnu/generic/EplTgtInitPosix.c
         )
