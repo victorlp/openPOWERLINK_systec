@@ -98,9 +98,15 @@ ENDIF ()
 # setup ethernet driver to use
 #
 IF (UNIX)
+  IF (QNXNTO)
+    SET(LIB_SOURCES ${LIB_SOURCES}
+                    ${POWERLINK_SOURCE_DIR}/Edrv/EdrvPcapQNX.c
+        )
+  ELSE (QNXNTO)
     SET(LIB_SOURCES ${LIB_SOURCES}
                     ${POWERLINK_SOURCE_DIR}/Edrv/EdrvPcapLinux.c
         )
+  ENDIF (QNXNTO)
 ELSEIF (WIN32)
     SET(LIB_SOURCES ${LIB_SOURCES}
                     ${POWERLINK_SOURCE_DIR}/Edrv/EdrvPcap.c
