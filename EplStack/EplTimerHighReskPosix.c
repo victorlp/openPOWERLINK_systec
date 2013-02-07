@@ -205,7 +205,8 @@ tEplKernel PUBLIC EplTimerHighReskAddInstance(void)
         goto Exit;
     }
 
-    schedParam.__sched_priority = EPL_THREAD_PRIORITY_HIGH;
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_HIGH;
+
     if (pthread_setschedparam(EplTimerHighReskInstance_l.m_thread, SCHED_FIFO, &schedParam) != 0)
     {
         EPL_DBGLVL_ERROR_TRACE("%s() Couldn't set thread scheduling parameters!\n", __func__);

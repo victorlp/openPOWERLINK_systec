@@ -186,7 +186,8 @@ tEplKernel PUBLIC EplTimeruAddInstance()
         goto Exit;
     }
 
-    schedParam.__sched_priority = EPL_THREAD_PRIORITY_LOW;
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_LOW;
+
     if (pthread_setschedparam(EplTimeruInstance_g.m_hProcessThread, SCHED_RR,
                               &schedParam) != 0)
     {
