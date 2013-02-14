@@ -67,6 +67,9 @@
   2006/06/09 k.t.:   start of the implementation
 
 ****************************************************************************/
+#if (TARGET_SYSTEM == _QNX_)
+#include <unistd.h>
+#endif
 
 #include "user/EplNmtMnu.h"
 #include "user/EplTimeru.h"
@@ -2623,6 +2626,10 @@ tEplKernel          Ret = kEplSuccessful;
 tEplNmtState        NmtState;
 tEplNmtMnuNodeInfo* pNodeInfo;
 tEplTimerArg        TimerArg;
+
+#if (TARGET_SYSTEM == _QNX_)
+    delay(1);
+#endif
 
     pNodeInfo = EPL_NMTMNU_GET_NODEINFO(uiNodeId_p);
     NmtState = EplNmtuGetNmtState();
