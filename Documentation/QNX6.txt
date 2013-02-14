@@ -1,0 +1,200 @@
+openPOWERLINK on QNX6
+==========================
+
+1 Introduction
+--------------
+  This file contains documentation for the openPOWERLINK stack on QNX6.
+
+2 Requirements
+--------------
+2.1 POWERLINK network
+  - POWERLINK network with controlled nodes (CN)
+        * openPOWERLINK controlled nodes, e.g. Altera-based FPGA evaluation boards
+        * B&R POWERLINK controlled nodes
+        * other POWERLINK controlled nodes
+
+2.2 Network Controller
+  Standard QNX6 network controller through libpcap library
+
+2.3 QNX version 6.5.0 with any service pack (tested with sp1 and without it)
+
+2.4 Libraries and Tools
+
+2.4.1 CMake
+   For building the openPOWERLINK stack and demo applications the Open Source
+   cross-platform build tool CMake is used (http://www.cmake.org). CMake
+   version V2.8.5(tested) or higher(not tested) is required.
+
+2.4.2 libpcap library
+  In order to use the userspace POWERLINK stack the libpcap library is needed
+  to access the Ethernet interface.
+
+2.4.3 openCONFIGURATOR
+  For configuration of your POWERLINK network the Open Source configuration
+  tool openCONFIGURATOR should be used. The tool is available as SourceForge
+  project. (http://sourceforge.net/projects/openconf/)
+
+  The openCONFIGURATOR projects used by the demo examples are found in the
+  directory: CfmProjects.
+
+  openCONFIGURATOR creates two file which are used by the openPOWERLINK stack
+  and application:
+  * xap.h       The header file contains the structure definition for your
+                process image. It depends on the available data field of the
+                CNs used in your configuration.
+
+  * mnobd.cdc   This file is used to configure the MN stack. It includes all
+                configuration data of the CNs and the network mapping
+                information. CN configuration is handled by the configuration
+                manager (CFM) module of the MN.
+
+3 openPOWERLINK Stack
+---------------------
+
+  The QNX6 implementation of the openPOWERLINK stack provides all
+  functions for a software based POWERLINK solution running as Linux userspace
+  application. The stack uses the libpcap library for accessing the network
+  interface and is therefore totally independant of the used network card and
+  driver.
+
+  The stack is located in:
+  Examples/X86/Generic/powerlink_user_lib
+
+4 Tools
+-------
+
+
+5 Demo applications
+-------------------
+  There are several demo applications available.
+
+5.1 Console MN demo
+  This demo also implements a POWERLINK MN with CFM. It is implemented as
+  console application.
+
+  It is located in:
+  Examples/X86/Generic/demo_mn_console
+
+5.4 Console CN demo
+  This demo implements a POWERLINK CN digital I/O node according to CiA401
+  profile. It is implemented as console application.
+
+  It is located in:
+  Examples/X86/Generic/demo_cn_console
+
+6 Building
+----------
+
+6.1 CMake
+  For building openPOWERLINK on QNX the build utility CMake
+  (http://www.cmake.org/) is used. CMake controls the software
+  compilation process using simple platform and compiler independent
+  configuration files. Depending on the architecture different build
+  files can be created. On QNX CMake may create:
+  * Unix Makefiles (tested for QNX console)
+  * Eclipse CDT4 - Unix Makefiles (tested for QNX Momentics IDE)
+
+6.2 Configuration
+  The configuration of different build options of the openPOWERLINK stack will
+  be done through the cmake interface.
+
+  There are three possible ways for configuring your build options
+  * cmake-gui
+    This is the most comfortable way for configuring the build options. cmake-gui
+    is a graphical user interface for CMake.
+  * ccmake
+    ccmake is a curses based user interface for cmake.
+  * cmake -i
+    If cmake is called with option -i you can interactively select your build
+    options.
+
+  The following build configuration options are available:
+
+  CFG_DEBUG_LVL         Debug level to be used for openPOWERLINK debugging
+                        functions.
+
+  CFG_POWERLINK_MN      If enabled, the POWERLINK stack will be compiled with
+                        MN functionality otherwise it will be compiled to be
+                        used with CN nodes.
+
+  CFG_X86_DEMO_MN_CONSOLE
+                        If enabled the MN console application
+                        will be compiled.
+
+                        Requires: CFG_POWERLINK_MN
+
+  CMAKE_INSTALL_PREFIX  Specifies the installation directory where your files
+                        will be installed. Default directory is:
+                        ${CMAKE_BUILD_DIR}/bin
+
+  CMAKE_BUILD_TYPE      Specifies your build type.
+                        Valid build types are: Debug,Release
+                        If the build type debug is specified, the code is compiled
+                        with debugging options.
+
+6.3 Out-of-Source Builds
+  CMake support out-of-source builds. Therefore, all generated files are located
+  in a seperate build directory which keeps your sources clean. It is recommended
+  to use a separate build directory for building the openPOWERLINK stack and the
+  demo applications.
+
+6.4 Build Instructions
+  Follow the steps below to build the stack and demo applications:
+
+  1. Creating the build directory
+     To separate the build files from the source code, a separate directory shall
+     be created, e.g. a directory called 'build' in the openPOWERLINK root:
+     > cd openPOWERLINK
+     > mkdir build
+
+  2. Entering the build directory and executing cmake
+     CMake has to be executed in the build directory with the path to the
+     source directory as parameter.
+     > cd build
+     > cmake-gui .. (cmake -i .., ccmake ..)
+
+     If using the cmake-gui, the build options are selected in the GUI. After
+     setting the desired options press "Configure". New options might appear
+     according to the current selection. New options will be marked in red.
+     Further configuration settings may be changed and accepted by pressing
+     "Configure" again. If there are no red-marked options, "Generate" writes
+     the build files (Unix Makefiles).
+
+  3. Building
+     Now we can build all necessary software modules by calling
+     > make
+
+  4. Installation
+     To install the compiled files to a single directory, type:
+     > make install
+
+     The target files will be installed in the configured installation
+     directory. There, the stack and demos can be started.
+
+
+7. Running POWERLINK
+--------------------
+
+7.1 Starting the MN demo application
+
+  You must have root access and ensure that the network configuration mnobd.cdc
+  is available in the current directory:
+
+  > cd bin
+  > ./demo_mn_console
+
+7.2 Starting the CN demo application
+
+  You must have root access.
+
+  > cd bin
+  > ./demo_cn_console
+
+
+8. Troubleshooting
+------------------
+
+  - The userspace based application doesn't find a network interface
+
+    Be sure that the pcap library is installed and you are running the demo
+    as root.

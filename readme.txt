@@ -58,14 +58,15 @@
 3. Available demo applications
 -------------------------------
 
-X86 PC with Linux or Windows operating system
+X86 PC with Linux, QNX6 or Windows operating system
 
   * MN demo application using a console based interface
     = Examples\X86\Generic\demo_mn_console
   * MN demo application using a Qt based interface
     = Examples\X86\Generic\demo_mn_qt
 
-  These demo applications can be built for both Linux and Windows.
+  These demo applications can be built for Linux and Windows.
+  For QNX6 the Qt based demo is not available yet.
   CMake is used as a cross-platform build system.
 
   On Linux, these demo applications can be configured to use either
@@ -78,6 +79,14 @@ X86 PC with Linux or Windows operating system
   Requirements:   libpcap  http://www.tcpdump.org
                   CMake    http://www.cmake.org
                   Qt       http://qt.nokia.com/
+
+  On QNX6, the demo application only supports a pcap based stack.
+  Detailed documentation for QNX6 can be found in Documentation/QNX6.txt
+
+  Supported Versions: QNX6.5.0 or later
+  Supported build environments: GCC, QNX Momentics IDE 4.7
+  Requirements:   libpcap  http://www.tcpdump.org
+                  CMake    http://www.cmake.org
 
   On Windows, these demo applications only support a pcap based stack in
   use space.
@@ -117,30 +126,35 @@ with Microblaze Soft-CPU and POWERLINK IP-Core.
 
 Detailed documentation is located in Documentation/linux-x86.txt
 
-3.2. Requirements for VxWorks demos
+3.2. Requirements for QNX6 demos
+-------------------------------------
+
+Detailed documentation is located in Documentation/QNX6.txt
+
+3.3. Requirements for VxWorks demos
 -------------------------------------
 
 Detailed documentation is located in Documentation/vxworks.txt
 
 
-3.3. Requirements for ColdFire MCF5484 demo
+3.4. Requirements for ColdFire MCF5484 demo
 --------------------------------------------
 
 - Linux-BSP and toolchain for ColdFire MCF5484
 - SYSTEC Developmentboard for ECUcore-5484
 - Host PC with Linux
 
-3.4. Requirements for Altera demos
+3.5. Requirements for Altera demos
 -------------------------------------
 
 Detailed documentation is located in Documentation/altera.txt
 
-3.5. Requirements for Xilinx demos
+3.6. Requirements for Xilinx demos
 -------------------------------------
 
 Detailed documentation is located in Documentation/xilinx.txt
 
-3.6. Steps to build and execute the demo application for the MCF5484
+3.7. Steps to build and execute the demo application for the MCF5484
 --------------------------------------------------------------------
 
 1.  Setup build environment on the host computer
