@@ -57,9 +57,13 @@
 
 #include <stdio.h>
 #include <unistd.h>
+
+#if (TARGET_SYSTEM != _QNX_)
 #include <sys/timerfd.h>
-#include <pthread.h>
 #include <sys/syscall.h>
+#endif
+
+#include <pthread.h>
 #include <semaphore.h>
 
 #include <signal.h>
@@ -182,7 +186,8 @@ tEplKernel PUBLIC EplTimeruAddInstance()
         goto Exit;
     }
 
-    schedParam.__sched_priority = EPL_THREAD_PRIORITY_LOW;
+    schedParam.sched_priority = EPL_THREAD_PRIORITY_LOW;
+
     if (pthread_setschedparam(EplTimeruInstance_g.m_hProcessThread, SCHED_RR,
                               &schedParam) != 0)
     {
@@ -516,7 +521,11 @@ static void * EplTimeruProcessThread(void *pArgument_p __attribute((unused)))
     sigset_t        awaitedSignal;
     siginfo_t       signalInfo;
 
+#if (TARGET_SYSTEM == _QNX_)
+    EPL_DBGLVL_TIMERU_TRACE("%s() ThreadId:%d\n", __func__, pthread_self() );
+#else
     EPL_DBGLVL_TIMERU_TRACE("%s() ThreadId:%d\n", __func__, syscall(SYS_gettid));
+#endif
 
     sigemptyset(&awaitedSignal);
     sigaddset(&awaitedSignal, SIGRTMIN);

@@ -54,14 +54,14 @@
 
 #include "global.h"
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 /* assure that system priorities of hrtimer and net-rx kernel threads are set appropriate */
 #define EPL_THREAD_PRIORITY_HIGH        75
 #define EPL_THREAD_PRIORITY_MEDIUM      50
 #define EPL_THREAD_PRIORITY_LOW         49
 
 #undef FTRACE_DEBUG
-#endif // (TARGET_SYSTEM == _LINUX_)
+#endif // (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 
 // =========================================================================
 // generic defines which for whole EPL Stack
@@ -119,7 +119,7 @@
 
 #ifdef CONFIG_MN
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 #define EPL_MODULE_INTEGRATION (EPL_MODULE_OBDK \
                                | EPL_MODULE_PDOK \
                                | EPL_MODULE_PDOU \

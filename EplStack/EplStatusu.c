@@ -320,6 +320,7 @@ tEplKernel  Ret;
         }
 #else
         Ret = kEplInvalidOperation;
+        UNUSED_PARAMETER(pfnCbResponse_p);
 #endif
     }
     else

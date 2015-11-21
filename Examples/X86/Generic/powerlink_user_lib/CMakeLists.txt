@@ -54,7 +54,11 @@
 # additional compiler flags
 #
 IF (UNIX)
+  IF (QNXNTO)
+    ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -D_QNX_SOURCE -D_POSIX_C_SOURCE=200112L)
+  ELSE (QNXNTO)
     ADD_DEFINITIONS(-Wall -Wextra -pedantic -std=c99 -pthread -D_GNU_SOURCE -D_POSIX_C_SOURCE=200112L)
+  ENDIF (QNXNTO)
 ELSEIF (WIN32)
     ADD_DEFINITIONS(-D_CONSOLE -DWPCAP -DHAVE_REMOTE)
 ENDIF (UNIX)
@@ -105,9 +109,15 @@ ENDIF ()
 # setup ethernet driver to use
 #
 IF (UNIX)
+  IF (QNXNTO)
+    SET(LIB_SOURCES ${LIB_SOURCES}
+                    ${POWERLINK_SOURCE_DIR}/Edrv/EdrvPcapQNX.c
+        )
+  ELSE (QNXNTO)
     SET(LIB_SOURCES ${LIB_SOURCES}
                     ${POWERLINK_SOURCE_DIR}/Edrv/EdrvPcapLinux.c
         )
+  ENDIF (QNXNTO)
 ELSEIF (WIN32)
     SET(LIB_SOURCES ${LIB_SOURCES}
                     ${POWERLINK_SOURCE_DIR}/Edrv/EdrvPcap.c
@@ -139,11 +149,19 @@ SET (LIB_SOURCES ${LIB_SOURCES}
     )
 
 IF (UNIX)
+    IF (QNXNTO)
+        SET (LIB_SOURCES ${LIB_SOURCES}
+                     ${POWERLINK_SOURCE_DIR}/SharedBuff/ShbIpc-QNX.c
+            )
+    ELSE (QNXNTO)
+        SET (LIB_SOURCES ${LIB_SOURCES}
+                     ${POWERLINK_SOURCE_DIR}/SharedBuff/ShbIpc-LinuxPthreads.c
+            )
+    ENDIF (QNXNTO)
     SET (LIB_SOURCES ${LIB_SOURCES}
                      ${POWERLINK_SOURCE_DIR}/EplStack/EplSdoUdpu.c
                      ${POWERLINK_SOURCE_DIR}/EplStack/EplTimeruLinuxUser.c
                      ${POWERLINK_SOURCE_DIR}/EplStack/EplTimerHighReskPosix.c
-                     ${POWERLINK_SOURCE_DIR}/SharedBuff/ShbIpc-LinuxPthreads.c
                      ${POWERLINK_SOURCE_DIR}/Target/X86/Linux/gnu/generic/ftraceDebug.c
                      ${POWERLINK_SOURCE_DIR}/Target/X86/Linux/gnu/generic/EplTgtInitPosix.c
         )

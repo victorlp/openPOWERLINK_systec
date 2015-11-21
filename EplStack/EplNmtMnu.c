@@ -67,6 +67,9 @@
   2006/06/09 k.t.:   start of the implementation
 
 ****************************************************************************/
+#if (TARGET_SYSTEM == _QNX_)
+#include <unistd.h>
+#endif
 
 #include "user/EplNmtMnu.h"
 #include "user/EplTimeru.h"
@@ -2880,6 +2883,10 @@ tEplNmtState        NmtState;
 tEplNmtMnuNodeInfo* pNodeInfo;
 tEplTimerArg        TimerArg;
 
+#if (TARGET_SYSTEM == _QNX_)
+    delay(1);
+#endif
+
     pNodeInfo = EPL_NMTMNU_GET_NODEINFO(uiNodeId_p);
     NmtState = EplNmtuGetNmtState();
     if (NmtState <= kEplNmtMsNotActive)
@@ -3873,15 +3880,15 @@ Exit:
 static tEplKernel EplNmtMnuReset(void)
 {
 tEplKernel  Ret;
-int         iIndex;
+unsigned int uiIndex;
 
     Ret = EplTimeruDeleteTimer(&EplNmtMnuInstance_g.m_TimerHdlNmtState);
 
-    for (iIndex = 1; iIndex <= tabentries (EplNmtMnuInstance_g.m_aNodeInfo); iIndex++)
+    for (uiIndex = 1; uiIndex <= tabentries (EplNmtMnuInstance_g.m_aNodeInfo); uiIndex++)
     {
         // delete timer handles
-        Ret = EplTimeruDeleteTimer(&EPL_NMTMNU_GET_NODEINFO(iIndex)->m_TimerHdlStatReq);
-        Ret = EplTimeruDeleteTimer(&EPL_NMTMNU_GET_NODEINFO(iIndex)->m_TimerHdlLonger);
+        Ret = EplTimeruDeleteTimer(&EPL_NMTMNU_GET_NODEINFO(uiIndex)->m_TimerHdlStatReq);
+        Ret = EplTimeruDeleteTimer(&EPL_NMTMNU_GET_NODEINFO(uiIndex)->m_TimerHdlLonger);
     }
 
 #if EPL_NMTMNU_PRES_CHAINING_MN != FALSE
@@ -4099,7 +4106,8 @@ DWORD               dwPResMnTimeoutNs;
 
     if (EplNmtMnuInstance_g.m_dwPrcPResMnTimeoutNs < dwPResMnTimeoutNs)
     {
-    tEplDllNodeInfo DllNodeInfo = {0};
+        tEplDllNodeInfo DllNodeInfo;
+        memset(&DllNodeInfo, 0, sizeof(tEplDllNodeInfo));
 
         EplNmtMnuInstance_g.m_dwPrcPResMnTimeoutNs = dwPResMnTimeoutNs;
         DllNodeInfo.m_dwPresTimeoutNs              = dwPResMnTimeoutNs;

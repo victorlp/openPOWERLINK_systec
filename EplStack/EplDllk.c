@@ -334,7 +334,7 @@ static tEplDllkInstance     EplDllkInstance_g;
 
 static tEdrvTxBuffer        aEplDllkTxBuffer_l[EPL_DLLK_TXFRAME_COUNT];
 
-TGT_DLLK_DECLARE_CRITICAL_SECTION;
+TGT_DLLK_DECLARE_CRITICAL_SECTION
 
 
 //---------------------------------------------------------------------------
@@ -1529,8 +1529,10 @@ tEplKernel      Ret = kEplSuccessful;
 unsigned int    uiHandle;
 unsigned int    uiFrameSize;
 BYTE            abMulticastMac[6];
+#if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
 unsigned int        uiIndex;
 tEplDllkNodeInfo*   pIntNodeInfo;
+#endif
 
     // initialize flags for PRes and StatusRes (leave Flag 1 unchanged)
     EplDllkInstance_g.m_bMnFlag1 = 0;
@@ -1906,6 +1908,8 @@ tEplDllkNodeInfo*   pIntNodeInfo;
 
     }
     else
+#else
+    UNUSED_PARAMETER(NmtState_p);
 #endif // (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
     {   // local node is CN
 
@@ -2074,8 +2078,8 @@ static tEplKernel EplDllkProcessDestroy(tEplNmtState OldNmtState_p)
 {
 tEplKernel      Ret = kEplSuccessful;
 BYTE            abMulticastMac[6];
-unsigned int    uiIndex;
 #if (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
+unsigned int    uiIndex;
 unsigned int    uiHandle;
 #endif
 
@@ -2200,6 +2204,8 @@ unsigned int    uiHandle;
         }
     }
     else
+#else
+    UNUSED_PARAMETER(OldNmtState_p);
 #endif // (((EPL_MODULE_INTEGRATION) & (EPL_MODULE_NMT_MN)) != 0)
     {
 #if EPL_NMT_MAX_NODE_ID > 0

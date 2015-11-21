@@ -62,7 +62,7 @@
 /* includes */
 #include "Epl.h"
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -74,7 +74,6 @@
 #include <string.h>
 #include <termios.h>
 #include <pthread.h>
-#include <sys/syscall.h>
 #include <sys/resource.h>
 #include <errno.h>
 
@@ -88,6 +87,12 @@
 #include <pthread.h>
 #else
 #include <pcap.h>
+#endif
+
+#if (TARGET_SYSTEM == _QNX_)
+#include <sys/neutrino.h>
+#else
+#include <sys/syscall.h>
 #endif
 
 #elif (TARGET_SYSTEM == _WIN32_)
@@ -107,7 +112,7 @@
 //---------------------------------------------------------------------------
 // const defines
 //---------------------------------------------------------------------------
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
 
 #define SET_CPU_AFFINITY
 #define MAIN_THREAD_PRIORITY            20
@@ -220,13 +225,16 @@ static void printlog(char *fmt, ...)
 {
     va_list             arglist;
     time_t              timeStamp;
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     struct tm           timeVal;
+#else
     struct tm           *p_timeVal;
+#endif
     char                timeStr[20];
 
     time(&timeStamp);
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     localtime_r(&timeStamp, &timeVal);
     strftime(timeStr, 20, "%Y/%m/%d %H:%M:%S", &timeVal);
 #else
@@ -274,9 +282,18 @@ int  main (int argc, char **argv)
     int                         inum;
 #endif
 
+#if (TARGET_SYSTEM == _QNX_)
+    {// set time period
+        struct _clockperiod new_val;
+        struct _clockperiod old_val;
+        new_val.nsec = 90000;
+        if(ClockPeriod( CLOCK_REALTIME, &new_val, &old_val, 0 ) == -1) printf("ClockPeriod error\n");
+    }
+#endif
+
     int                         opt;
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     /* get command line parameters */
     while ((opt = getopt(argc, argv, "c:l:")) != -1)
     {
@@ -299,7 +316,7 @@ int  main (int argc, char **argv)
 
 #ifdef CONFIG_POWERLINK_USERSTACK
 
-#if (TARGET_SYSTEM == _LINUX_)
+#if (TARGET_SYSTEM == _LINUX_)||(TARGET_SYSTEM == _QNX_)
     struct sched_param          schedParam;
 
     /* adjust process priority */
@@ -307,11 +324,13 @@ int  main (int argc, char **argv)
     {
         EPL_DBGLVL_ERROR_TRACE("%s() couldn't set nice value! (%s)\n", __func__, strerror(errno));
     }
-    schedParam.__sched_priority = MAIN_THREAD_PRIORITY;
+
+    schedParam.sched_priority = MAIN_THREAD_PRIORITY;
+
     if (pthread_setschedparam(pthread_self(), SCHED_RR, &schedParam) != 0)
     {
         EPL_DBGLVL_ERROR_TRACE("%s() couldn't set thread scheduling parameters! %d\n",
-                __func__, schedParam.__sched_priority);
+                __func__, schedParam.sched_priority);
     }
 
     /* Initialize target specific stuff */

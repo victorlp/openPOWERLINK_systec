@@ -60,17 +60,20 @@
 // Supported plattform:
 // _MSC_VER .... Microsoft Compiler (Visual Studio)
 // __linux__ ... Linux
+// __QNX__ ... QNX
 
 #ifdef _MSC_VER
 
     #include <conio.h>
 
-#elif __linux__
-
+#elif __linux__ || __QNX__
     #include <unistd.h>
     #include <fcntl.h>
     #include <termios.h>
+#endif
 
+#if __QNX__
+    #include <sys/select.h>
 #endif
 
 //=========================================================================//
@@ -107,7 +110,7 @@
         return  _getch();
     }
 
-#elif __linux__
+#elif __linux__ || __QNX__
 
     // Use termios library to provide getch()
     int EplTgtGetch( void )
@@ -158,7 +161,7 @@
         return  _kbhit();
     }
 
-#elif __linux__
+#elif __linux__ || __QNX__
 
     // Use termios library to provide getch()
     int EplTgtKbhit( void )
@@ -221,7 +224,7 @@
         Sleep(MilliSeconds);
     }
 
-#elif __linux__
+#elif __linux__ || __QNX__
 
     // Use Microsoft's Sleep implementation
     void    EplTgtMilliSleep( unsigned int MilliSeconds )
