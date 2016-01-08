@@ -218,7 +218,7 @@ int          iRet;
     }
     else
     {
-        TRACE("EPL: ERROR: Can't open '%s'\n", pszDrvName);
+        TRACE("EPL: ERROR: Can't open '%s', because of error %d: %s\n", pszDrvName, errno, strerror(errno));
         Ret = kEplNoResource;
         goto Exit;
     }
@@ -1034,6 +1034,7 @@ tEplKernel PUBLIC EplApiGetIdentResponse(
     // This function is currently not supported
     // in the Linux kernel space implementation
     *ppIdentResponse_p  = NULL;
+    UNUSED_PARAMETER(uiNodeId_p);
 
     return  kEplInvalidOperation;
 }

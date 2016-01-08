@@ -183,7 +183,6 @@ SET (LIB_SOURCES_KERNEL ${LIB_SOURCES_KERNEL}
                         ${POWERLINK_SOURCE_DIR}/EplStack/EplNmtk.c
                         ${POWERLINK_SOURCE_DIR}/EplStack/EplNmtkCal.c
                         ${POWERLINK_SOURCE_DIR}/EplStack/EplPdok.c
-                        ${POWERLINK_SOURCE_DIR}/EplStack/EplPdokCopyEndian.c
                         ${POWERLINK_SOURCE_DIR}/EplStack/EplPdokCal.c
                         ${POWERLINK_SOURCE_DIR}/EplStack/EplErrorHandlerk.c
     )
@@ -348,7 +347,9 @@ ENDIF ()
 #
 # Installation
 #
-IF (WIN32)
+IF (UNIX)
+    INSTALL(TARGETS powerlink ARCHIVE DESTINATION lib)
+ELSEIF (WIN32)
     IF (CFG_X86_WINDOWS_DLL)
         INSTALL(TARGETS openPOWERLINK RUNTIME DESTINATION bin)
     ENDIF (CFG_X86_WINDOWS_DLL)

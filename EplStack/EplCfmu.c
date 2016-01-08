@@ -257,7 +257,7 @@ tEplCfmuNodeInfo*   pNodeInfo;
         pNodeInfo = EPL_CFMU_GET_NODEINFO(uiNodeId);
         if (pNodeInfo != NULL)
         {
-            if (pNodeInfo->m_SdoComConHdl != ~((tEplSdoComConHdl)0) )
+            if (pNodeInfo->m_SdoComConHdl != ~0U)
             {
                 Ret = EplSdoComSdoAbort(pNodeInfo->m_SdoComConHdl, EPL_SDOAC_DATA_NOT_TRANSF_DUE_DEVICE_STATE);
             }
@@ -330,23 +330,30 @@ BOOL                fDoUpdate = FALSE;
 
     if (pNodeInfo->m_CfmState != kEplCfmuStateIdle)
     {
-        // send abort
-        pNodeInfo->m_CfmState = kEplCfmuStateInternalAbort;
-        Ret = EplSdoComSdoAbort(pNodeInfo->m_SdoComConHdl, EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL);
-        if (Ret != kEplSuccessful)
+        // Send abort if SDO command is not undefined
+        if (pNodeInfo->m_SdoComConHdl != ~0U)
         {
-            goto Exit;
+            // Set node CFM state to an intermediate state to catch the SDO callback
+            pNodeInfo->m_CfmState = kEplCfmuStateInternalAbort;
+
+            Ret = EplSdoComSdoAbort(pNodeInfo->m_SdoComConHdl, EPL_SDOAC_DATA_NOT_TRANSF_DUE_LOCAL_CONTROL);
+            if (Ret != kEplSuccessful)
+            {
+                goto Exit;
+            }
+
+            // close connection
+            Ret = EplSdoComUndefineCon(pNodeInfo->m_SdoComConHdl);
+            pNodeInfo->m_SdoComConHdl = ~0U;
+            if (Ret != kEplSuccessful)
+            {
+                EPL_DBGLVL_CFM_TRACE("SDO Free Error!\n");
+                goto Exit;
+            }
         }
 
-        // close connection
-        Ret = EplSdoComUndefineCon(pNodeInfo->m_SdoComConHdl);
-        pNodeInfo->m_SdoComConHdl = ~0U;
-        if (Ret != kEplSuccessful)
-        {
-            EPL_DBGLVL_CFM_TRACE("SDO Free Error!\n");
-            goto Exit;
-        }
-
+        // Set node CFM state to idle
+        pNodeInfo->m_CfmState = kEplCfmuStateIdle;
     }
 
     if ((NodeEvent_p == kEplNmtNodeEventFound)
@@ -574,7 +581,7 @@ BYTE*                   pbBuffer;
     // abort any running SDO transfer
     pNodeInfo = EPL_CFMU_GET_NODEINFO(pParam_p->m_uiSubIndex);
     if ((pNodeInfo != NULL)
-        && (pNodeInfo->m_SdoComConHdl != ~((tEplSdoComConHdl)0) ))
+        && (pNodeInfo->m_SdoComConHdl != ~0U))
     {
         Ret = EplSdoComSdoAbort(pNodeInfo->m_SdoComConHdl, EPL_SDOAC_DATA_NOT_TRANSF_DUE_DEVICE_STATE);
     }
@@ -881,8 +888,6 @@ tEplKernel      Ret = kEplSuccessful;
     {
         EPL_DBGLVL_CFM_TRACE("CN%x Writing 0x1006 returns 0x%X\n", pNodeInfo_p->m_EventCnProgress.m_uiNodeId, Ret);
     }
-#else
-    UNUSED_PARAMETER(pNodeInfo_p);
 #endif
 
     return Ret;
@@ -1020,7 +1025,7 @@ tEplSdoComTransParamByIndex TransParamByIndex;
         goto Exit;
     }
 
-    if (pNodeInfo_p->m_SdoComConHdl == ~((tEplSdoComConHdl)0) )
+    if (pNodeInfo_p->m_SdoComConHdl == ~0U)
     {
         // init command layer connection
         Ret = EplSdoComDefineCon(&pNodeInfo_p->m_SdoComConHdl,

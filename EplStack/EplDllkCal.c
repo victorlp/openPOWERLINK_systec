@@ -760,6 +760,7 @@ tEplKernel  ShbRet = kEplSuccessful;
 
         default:    // generic priority
 #if(((EPL_MODULE_INTEGRATION) & (EPL_MODULE_VETH)) == 0)
+            UNUSED_PARAMETER(Buffer_p);
             ShbError = ShbCirWriteDataBlock (EplDllkCalInstance_g.m_ShbInstanceTxGenAsnd, pFrameInfo_p->m_pFrame, pFrameInfo_p->m_uiFrameSize);
             // returns kShbOk, kShbExceedDataSizeLimit, kShbBufferFull, kShbInvalidArg
 #else
@@ -906,9 +907,7 @@ tEplKernel EplDllkCalAsyncClearQueues(void)
 {
 tEplKernel  Ret = kEplSuccessful;
 #if EPL_DLL_PRES_CHAINING_MN != FALSE
-tShbError   ShbError;
-
-    ShbError = ShbCirResetBuffer (EplDllkCalInstance_g.m_ShbInstanceTxSync, 1000, NULL);
+    ShbCirResetBuffer (EplDllkCalInstance_g.m_ShbInstanceTxSync, 1000, NULL);
 #endif
 
     // clear MN asynchronous queues
